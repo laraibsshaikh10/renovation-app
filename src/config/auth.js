@@ -7,9 +7,19 @@ import {
   signOut,
   GoogleAuthProvider,
 } from "firebase/auth";
-import { db } from "./firebase";  // Ensure db is initialized for Firestore
-import { collection, addDoc, getDocs, getDoc, doc, deleteDoc, query, where, updateDoc } from "firebase/firestore";
-import { v4 as uuidv4 } from 'uuid';  // Import uuid for generating unique task IDs
+import { db } from "./firebase"; // Ensure db is initialized for Firestore
+import {
+  collection,
+  addDoc,
+  getDocs,
+  getDoc,
+  doc,
+  deleteDoc,
+  query,
+  where,
+  updateDoc,
+} from "firebase/firestore";
+import { v4 as uuidv4 } from "uuid"; // Import uuid for generating unique task IDs
 
 // User Authentication
 export const signUp = async (email, password) => {
@@ -37,7 +47,7 @@ export const logOut = async () => {
 
 // Project Management
 export const createProject = async (userId, title, description) => {
-  const projectRef = collection(db, 'projects');
+  const projectRef = collection(db, "projects");
   const newProject = {
     title,
     description,
@@ -46,29 +56,30 @@ export const createProject = async (userId, title, description) => {
     collaborators: [],
     createdAt: new Date().toISOString(),
   };
-  await addDoc(projectRef, newProject);
+  const docRef = await addDoc(projectRef, newProject); // Capture document reference
+  return docRef.id; // Return project ID for further use
 };
 
 export const getProjectsByUser = async (userId) => {
-  const projectRef = collection(db, 'projects');
-  const q = query(projectRef, where('createdBy', '==', userId));
+  const projectRef = collection(db, "projects");
+  const q = query(projectRef, where("createdBy", "==", userId));
   const querySnapshot = await getDocs(q);
-  return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  return querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 };
 
 export const deleteProject = async (projectId) => {
-  const projectDocRef = doc(db, 'projects', projectId);
+  const projectDocRef = doc(db, "projects", projectId);
   await deleteDoc(projectDocRef);
 };
 
 // Task Management
 export const addTaskToProject = async (projectId, task) => {
   try {
-    const taskWithId = { ...task, id: uuidv4() };  // Add a unique ID to each task
+    const taskWithId = { ...task, id: uuidv4() }; // Add a unique ID to each task
     const projectRef = doc(db, "projects", projectId);
     const currentProject = (await getDoc(projectRef)).data();
-    const updatedTasks = [...currentProject.tasks, taskWithId];  // Add task with ID to tasks array
-    
+    const updatedTasks = [...currentProject.tasks, taskWithId]; // Add task with ID to tasks array
+
     await updateDoc(projectRef, { tasks: updatedTasks });
   } catch (error) {
     console.error("Error adding task to project:", error);
@@ -79,10 +90,10 @@ export const updateTaskStatus = async (projectId, taskId, completed) => {
   try {
     const projectRef = doc(db, "projects", projectId);
     const currentProject = (await getDoc(projectRef)).data();
-    const updatedTasks = currentProject.tasks.map(task =>
+    const updatedTasks = currentProject.tasks.map((task) =>
       task.id === taskId ? { ...task, completed } : task
     );
-    
+
     await updateDoc(projectRef, { tasks: updatedTasks });
   } catch (error) {
     console.error("Error updating task status:", error);
@@ -93,8 +104,10 @@ export const deleteTaskFromProject = async (projectId, taskId) => {
   try {
     const projectRef = doc(db, "projects", projectId);
     const currentProject = (await getDoc(projectRef)).data();
-    const updatedTasks = currentProject.tasks.filter(task => task.id !== taskId);
-    
+    const updatedTasks = currentProject.tasks.filter(
+      (task) => task.id !== taskId
+    );
+
     await updateDoc(projectRef, { tasks: updatedTasks });
   } catch (error) {
     console.error("Error deleting task from project:", error);
@@ -110,10 +123,6 @@ export const updateProjectDetails = async (projectId, updatedDetails) => {
     console.error("Error updating project details:", error);
   }
 };
-
-
-
-
 
 // export const logOut = () => {
 //   return auth.signOut();

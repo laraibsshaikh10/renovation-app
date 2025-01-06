@@ -6,7 +6,6 @@ import Register from "./components/signup";
 import Header from "./components/header";
 import Home from "./components/home";
 
-
 import { AuthProvider } from "./contexts/authContext";
 
 function App() {
@@ -14,8 +13,7 @@ function App() {
     { path: "/login", element: <Login /> },
     { path: "/register", element: <Register /> },
     { path: "/home", element: <Home /> },
-    { path: "*", element: <Login /> }
-
+    { path: "*", element: <Login /> },
   ];
 
   // useRoutes inside Router context provided by index.js
@@ -32,5 +30,3 @@ function App() {
 }
 
 export default App;
-
-

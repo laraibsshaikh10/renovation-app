@@ -13,6 +13,8 @@ const firebaseConfig = {
   // appId: "YOUR_API_ID",
   // measurementId: "YOUR_MEASUREMENT_ID"
 
+  
+
 };
 
 // Initialize Firebase

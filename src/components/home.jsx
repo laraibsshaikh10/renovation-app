@@ -1,20 +1,28 @@
-import React, { useEffect, useState } from 'react';
-import { useAuth } from '../contexts/authContext';
-import { createProject, getProjectsByUser, deleteProject, updateProjectDetails, addTaskToProject, updateTaskStatus, deleteTaskFromProject } from '../config/auth';
-import { v4 as uuidv4 } from 'uuid';
-import { Navigate } from 'react-router-dom';
-import TaskList from './taskList';
+import React, { useEffect, useState } from "react";
+import { useAuth } from "../contexts/authContext";
+import {
+  createProject,
+  getProjectsByUser,
+  deleteProject,
+  updateProjectDetails,
+  addTaskToProject,
+  updateTaskStatus,
+  deleteTaskFromProject,
+} from "../config/auth";
+import { v4 as uuidv4 } from "uuid";
+import { Navigate } from "react-router-dom";
+import TaskList from "./taskList";
 
 const Home = () => {
   const { currentUser, isLoggedIn } = useAuth();
   const [projects, setProjects] = useState([]);
-  const [newProjectTitle, setNewProjectTitle] = useState('');
-  const [newProjectDescription, setNewProjectDescription] = useState('');
+  const [newProjectTitle, setNewProjectTitle] = useState("");
+  const [newProjectDescription, setNewProjectDescription] = useState("");
   const [newProjectTasks, setNewProjectTasks] = useState([]);
-  const [newTask, setNewTask] = useState('');
+  const [newTask, setNewTask] = useState("");
   const [editingProject, setEditingProject] = useState(null);
-  const [editedTitle, setEditedTitle] = useState('');
-  const [editedDescription, setEditedDescription] = useState('');
+  const [editedTitle, setEditedTitle] = useState("");
+  const [editedDescription, setEditedDescription] = useState("");
   const [viewingProject, setViewingProject] = useState(null);
 
   useEffect(() => {
@@ -27,52 +35,37 @@ const Home = () => {
     }
   }, [currentUser]);
 
-  // const handleCreateProject = async () => {
-  //   if (!newProjectTitle.trim()) {
-  //     alert("Project title is required!");
-  //     return;
-  //   }
-  //   const newProjectId = await createProject(currentUser.uid, newProjectTitle, newProjectDescription);
-  //   for (const task of newProjectTasks) {
-  //     if (task.trim()) {
-  //       await addTaskToProject(newProjectId, { title: task, completed: false });
-  //     }
-  //   }
-  //   setNewProjectTitle('');
-  //   setNewProjectDescription('');
-  //   setNewTask('');
-  //   setNewProjectTasks([]);
-  //   const updatedProjects = await getProjectsByUser(currentUser.uid);
-  //   setProjects(updatedProjects);
-  // };
   const handleCreateProject = async () => {
     if (!newProjectTitle.trim()) {
       alert("Project title is required!");
       return;
     }
-    const newProjectId = await createProject(currentUser.uid, newProjectTitle, newProjectDescription);
-    
+    const newProjectId = await createProject(
+      currentUser.uid,
+      newProjectTitle,
+      newProjectDescription
+    );
+
     const taskObjects = newProjectTasks
       .filter((task) => task.trim()) // Avoid empty tasks
       .map((task) => ({ id: uuidv4(), title: task.trim(), completed: false })); // Create task objects
-    
+
     for (const task of taskObjects) {
       await addTaskToProject(newProjectId, task);
     }
-  
-    setNewProjectTitle('');
-    setNewProjectDescription('');
-    setNewTask('');
+
+    setNewProjectTitle("");
+    setNewProjectDescription("");
+    setNewTask("");
     setNewProjectTasks([]);
     const updatedProjects = await getProjectsByUser(currentUser.uid);
     setProjects(updatedProjects);
   };
-  
 
   const handleAddInitialTask = () => {
     if (newTask.trim()) {
       setNewProjectTasks([...newProjectTasks, newTask.trim()]);
-      setNewTask('');
+      setNewTask("");
     }
   };
 
@@ -98,7 +91,7 @@ const Home = () => {
   const handleAddTaskInEdit = async (projectId, task) => {
     if (task && task.title.trim()) {
       try {
-        await addTaskToProject(projectId, task);  // Task already has id, title, and completed properties
+        await addTaskToProject(projectId, task); // Task already has id, title, and completed properties
         const updatedProjects = await getProjectsByUser(currentUser.uid);
         setProjects(updatedProjects);
       } catch (error) {
@@ -109,8 +102,8 @@ const Home = () => {
 
   const handleToggleTaskCompletion = async (projectId, taskId) => {
     try {
-      const project = projects.find(project => project.id === projectId);
-      const task = project.tasks.find(task => task.id === taskId);
+      const project = projects.find((project) => project.id === projectId);
+      const task = project.tasks.find((task) => task.id === taskId);
       await updateTaskStatus(projectId, taskId, !task.completed);
       const updatedProjects = await getProjectsByUser(currentUser.uid);
       setProjects(updatedProjects);
@@ -135,7 +128,9 @@ const Home = () => {
 
   return (
     <div className="container mt-5 pt-5 text-center">
-      <h1 className="display-4 fw-bold">Welcome, {currentUser.displayName || currentUser.email}!</h1>
+      <h1 className="display-4 fw-bold">
+        Welcome, {currentUser.displayName || currentUser.email}!
+      </h1>
       <div className="mt-4">
         <input
           type="text"
@@ -158,15 +153,26 @@ const Home = () => {
             value={newTask}
             onChange={(e) => setNewTask(e.target.value)}
           />
-          <button className="btn btn-secondary mt-2 ms-2" onClick={handleAddInitialTask}>
+          <button
+            className="btn btn-secondary mt-2 ms-2"
+            onClick={handleAddInitialTask}
+          >
             Add Task
           </button>
         </div>
         <ul className="list-group mt-2">
           {newProjectTasks.map((task, index) => (
-            <li key={index} className="list-group-item d-flex justify-content-between align-items-center">
+            <li
+              key={index}
+              className="list-group-item d-flex justify-content-between align-items-center"
+            >
               {task}
-              <button className="btn btn-danger btn-sm" onClick={() => handleDeleteInitialTask(index)}>Remove</button>
+              <button
+                className="btn btn-danger btn-sm"
+                onClick={() => handleDeleteInitialTask(index)}
+              >
+                Remove
+              </button>
             </li>
           ))}
         </ul>
@@ -179,7 +185,10 @@ const Home = () => {
         <h3>My Projects</h3>
         <ul className="list-group">
           {projects.map((project) => (
-            <li key={project.id} className="list-group-item d-flex flex-column justify-content-between p-3">
+            <li
+              key={project.id}
+              className="list-group-item d-flex flex-column justify-content-between p-3"
+            >
               <div className="mb-3 text-start">
                 {editingProject === project.id ? (
                   <div>
@@ -200,7 +209,9 @@ const Home = () => {
                       tasks={project.tasks}
                       onToggleTaskCompletion={handleToggleTaskCompletion}
                       onDeleteTask={handleDeleteTask}
-                      onAddTask={(projectId, task) => handleAddTaskInEdit(projectId, task)}
+                      onAddTask={(projectId, task) =>
+                        handleAddTaskInEdit(projectId, task)
+                      }
                       projectId={project.id}
                     />
                   </div>
@@ -248,7 +259,24 @@ const Home = () => {
                     </button>
                     <button
                       className="btn btn-danger"
-                      onClick={() => deleteProject(project.id)}
+                      onClick={() => {
+                        if (
+                          window.confirm(
+                            "Are you sure you want to delete this project?"
+                          )
+                        ) {
+                          deleteProject(project.id)
+                            .then(() => {
+                              const updatedProjects = projects.filter(
+                                (p) => p.id !== project.id
+                              );
+                              setProjects(updatedProjects); // Update the state after deletion
+                            })
+                            .catch((error) => {
+                              console.error("Error deleting project:", error);
+                            });
+                        }
+                      }}
                     >
                       Delete
                     </button>
@@ -258,13 +286,18 @@ const Home = () => {
               {viewingProject === project.id && (
                 <div className="mt-3 text-start">
                   <h5>Project Details</h5>
-                  <p><strong>Title:</strong> {project.title}</p>
-                  <p><strong>Description:</strong> {project.description}</p>
+                  <p>
+                    <strong>Title:</strong> {project.title}
+                  </p>
+                  <p>
+                    <strong>Description:</strong> {project.description}
+                  </p>
                   <h6>Tasks:</h6>
                   <ul className="list-group">
-                    {project.tasks.map(task => (
+                    {project.tasks.map((task) => (
                       <li key={task.id} className="list-group-item">
-                        {task.title} - {task.completed ? 'Completed' : 'Pending'}
+                        {task.title} -{" "}
+                        {task.completed ? "Completed" : "Pending"}
                       </li>
                     ))}
                   </ul>
@@ -285,6 +318,3 @@ const Home = () => {
 };
 
 export default Home;
-
-
-
