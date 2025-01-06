@@ -1,29 +1,25 @@
 import React from 'react';
+import TaskList from './taskList';
 
-const Project = ({ project, onEdit, onDelete }) => {
+const Project = ({ project, onEdit, onDelete, onToggleTaskCompletion, onDeleteTask, handleToggleTaskCompletion, handleDeleteTask, handleAddTaskInEdit }) => {
     const handleDelete = () => {
-        const confirmation = window.confirm("Are you sure you want to delete this project?");
-        if (confirmation) {
-            onDelete(project.id); // Use project.id or project.ProjectID, as appropriate.
+        if (window.confirm("Are you sure you want to delete this project?")) {
+            onDelete(project.id);
         }
     };
 
     return (
-        <li className="list-group-item d-flex justify-content-between align-items-center">
-            <div>
-                <strong>{project.title}</strong>
-                <p>{project.description}</p>
-            </div>
-            <div>
-                <button onClick={() => onEdit(project.id)} className="btn btn-warning me-2">
-                    Edit
-                </button>
-                <button onClick={handleDelete} className="btn btn-danger">
-                    Delete
-                </button>
-            </div>
+        <li className="list-group-item">
+            <h5>{project.title}</h5>
+            <p>{project.description}</p>
+             
+            <button onClick={() => onEdit(project.id)} className="btn btn-warning">Edit</button>
+            <button onClick={handleDelete} className="btn btn-danger">Delete</button>
         </li>
     );
 };
 
 export default Project;
+
+
+

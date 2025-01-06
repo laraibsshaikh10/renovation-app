@@ -8,7 +8,8 @@ import {
   GoogleAuthProvider,
 } from "firebase/auth";
 import { db } from "./firebase";  // Ensure db is initialized for Firestore
-import { collection, addDoc, getDocs, doc, deleteDoc, query, where } from "firebase/firestore";
+import { collection, addDoc, getDocs, getDoc, doc, deleteDoc, query, where, updateDoc } from "firebase/firestore";
+import { v4 as uuidv4 } from 'uuid';  // Import uuid for generating unique task IDs
 
 // User Authentication
 export const signUp = async (email, password) => {
@@ -59,6 +60,60 @@ export const deleteProject = async (projectId) => {
   const projectDocRef = doc(db, 'projects', projectId);
   await deleteDoc(projectDocRef);
 };
+
+// Task Management
+export const addTaskToProject = async (projectId, task) => {
+  try {
+    const taskWithId = { ...task, id: uuidv4() };  // Add a unique ID to each task
+    const projectRef = doc(db, "projects", projectId);
+    const currentProject = (await getDoc(projectRef)).data();
+    const updatedTasks = [...currentProject.tasks, taskWithId];  // Add task with ID to tasks array
+    
+    await updateDoc(projectRef, { tasks: updatedTasks });
+  } catch (error) {
+    console.error("Error adding task to project:", error);
+  }
+};
+
+export const updateTaskStatus = async (projectId, taskId, completed) => {
+  try {
+    const projectRef = doc(db, "projects", projectId);
+    const currentProject = (await getDoc(projectRef)).data();
+    const updatedTasks = currentProject.tasks.map(task =>
+      task.id === taskId ? { ...task, completed } : task
+    );
+    
+    await updateDoc(projectRef, { tasks: updatedTasks });
+  } catch (error) {
+    console.error("Error updating task status:", error);
+  }
+};
+
+export const deleteTaskFromProject = async (projectId, taskId) => {
+  try {
+    const projectRef = doc(db, "projects", projectId);
+    const currentProject = (await getDoc(projectRef)).data();
+    const updatedTasks = currentProject.tasks.filter(task => task.id !== taskId);
+    
+    await updateDoc(projectRef, { tasks: updatedTasks });
+  } catch (error) {
+    console.error("Error deleting task from project:", error);
+  }
+};
+
+// Update Project Details (new function)
+export const updateProjectDetails = async (projectId, updatedDetails) => {
+  try {
+    const projectRef = doc(db, "projects", projectId);
+    await updateDoc(projectRef, updatedDetails);
+  } catch (error) {
+    console.error("Error updating project details:", error);
+  }
+};
+
+
+
+
 
 // export const logOut = () => {
 //   return auth.signOut();
